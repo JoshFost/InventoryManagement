@@ -1,5 +1,5 @@
 import sqlite3
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 # Database connection setup
 def conn_db():
@@ -9,12 +9,12 @@ def conn_db():
     if DEBUG_MODE:
         print("Connection Established")
     cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS games (
-                        item_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        item_name TEXT NOT NULL,
-                        item_description TEXT,
-                        platform TEXT,
-                        release_date TEXT
+    cursor.execute('''CREATE TABLE IF NOT EXISTS customer (
+                        customer_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        customer_first_name TEXT NOT NULL,
+                        customer_middle_name TEXT,
+                        customer_last_name TEXT NOT NULL,
+                        customer_email_address TEXT NOT NULL
                       )''')
     if DEBUG_MODE:
         print("Table Created")  
@@ -25,65 +25,66 @@ def conn_db():
 def view_items():
     conn = conn_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM games")
+    cursor.execute("SELECT * FROM customer")
     items = cursor.fetchall()
     conn.close()
     return items
 
 # Add an item
-def add_item(item_name, item_description, platform, release_date):
+def add_item(customer_first_name, customer_middle_name, customer_last_name, customer_email_address):
     if DEBUG_MODE:
         print("Started Connection")
     conn = conn_db()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO games (item_name, item_description, platform, release_date) VALUES (?, ?, ?, ?)",  
-                   (item_name, item_description, platform, release_date))
+    cursor.execute("INSERT INTO customer (customer_first_name, customer_middle_name, customer_last_name, customer_email_address) VALUES (?, ?, ?, ?)",  
+                   (customer_first_name, customer_middle_name, customer_last_name, customer_email_address))
     conn.commit()
     conn.close()
-    print("Item added successfully.")
+    print("customer added successfully.")
 
 # Edit an item
-def edit_item(item_id, item_name=None, item_description=None, platform=None, release_date=None):
+def edit_item(customer_id, customer_first_name =None, customer_middle_name =None, customer_last_name=None, customer_email_address=None):
     conn = conn_db()
     cursor = conn.cursor()
     updates = []
     values = []
 
-    if item_name:
-        updates.append("item_name = ?")
-        values.append(item_name)
-    if item_description:
-        updates.append("item_description = ?")
-        values.append(item_description)
-    if platform:
-        updates.append("platform = ?")
-        values.append(platform)
-    if release_date:
-        updates.append("release_date = ?")
-        values.append(release_date)
+    if customer_first_name:
+        updates.append("customer_first_name = ?")
+        values.append(customer_first_name)
+    if customer_middle_name:
+        updates.append("customer_middle_name = ?")
+        values.append(customer_middle_name)
+    if customer_last_name:
+        updates.append("customer_last_name = ?")
+        values.append(customer_last_name)
+    if customer_email_address:
+        updates.append("customer_email_address = ?")
+        values.append(customer_email_address)
     
-    values.append(item_id)
-    query = f"UPDATE games SET {', '.join(updates)} WHERE item_id = ?"
+    values.append(customer_id)
+    query = f"UPDATE customer SET {', '.join(updates)} WHERE customer_id = ?"
     cursor.execute(query, values)
     conn.commit()
     conn.close()
     print("Item updated successfully.")
 
 # Remove an item
-def remove_item(item_id):
+def remove_item(customer_id):
     conn = conn_db()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM games WHERE item_id = ?", (item_id,))
+    cursor.execute("DELETE FROM customer WHERE customer_id = ?", (customer_id,))
     conn.commit() 
     conn.close()
     print("Item removed successfully.")
 
 # Example usage
 if __name__ == "__main__":
-    conn_db()  # Create database and table
-    print("Viewing items:")
-    print(view_items())  # Initially empty
+    conn_db()  # Ensure the table is created
+    print("Table creation checked.")
 
-    add_item("FIFA 22", "Football simulation game", "PlayStation", "2021-09-27")
-    print("After adding an item:")
-    print(view_items())  # Should show the newly added item
+    add_item("John", "A", "Doe", "john.doe@example.com")
+    print("Added a customer.")
+
+    print("Viewing customers:")
+    print(view_items())  # This should now show at least one record
